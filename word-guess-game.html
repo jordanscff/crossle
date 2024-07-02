@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-container {
+            width: 300px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        .player {
+            background-color: #056162;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .system {
+            background-color: #343434;
+        }
+        #guess-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        #submit-guess {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #056162;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="messages"></div>
+        <input type="text" id="guess-input" maxlength="5" placeholder="Enter your guess">
+        <button id="submit-guess">Submit Guess</button>
+    </div>
+
+    <script>
+        const words = ['TABLE', 'CHAIR', 'HOUSE', 'PLANT', 'LIGHT', 'BLAST'];
+        let targetWord = '';
+        let attempts = 0;
+
+        function startGame() {
+            targetWord = words[Math.floor(Math.random() * words.length)];
+            attempts = 0;
+            addMessage('System', scrambleWord(targetWord));
+        }
+
+        function scrambleWord(word) {
+            return word.split('').sort(() => Math.random() - 0.5).join('');
+        }
+
+        function addMessage(sender, text) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender.toLowerCase());
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function checkGuess(guess) {
+            if (guess.length !== 5) {
+                addMessage('System', 'Please enter a 5-letter word.');
+                return;
+            }
+
+            attempts++;
+            addMessage('Player', guess);
+
+            if (guess === targetWord) {
+                addMessage('System', 'Congratulations! You guessed the word!');
+                startGame();
+            } else {
+                let feedback = '';
+                for (let i = 0; i < 5; i++) {
+                    if (guess[i] === targetWord[i]) {
+                        feedback += guess[i];
+                    } else {
+                        feedback += 'X';
+                    }
+                }
+                addMessage('System', feedback);
+
+                if (attempts >= 6) {
+                    addMessage('System', `Game over. The word was ${targetWord}.`);
+                    startGame();
+                }
+            }
+        }
+
+        document.getElementById('submit-guess').addEventListener('click', () => {
+            const guessInput = document.getElementById('guess-input');
+            checkGuess(guessInput.value.toUpperCase());
+            guessInput.value = '';
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
